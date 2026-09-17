@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Name | Portfolio & Event Feed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #05070e;
+      --card-bg: rgba(15, 23, 42, 0.55);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover-border: rgba(56, 189, 248, 0.3);
+      --accent-blue: #38bdf8;
+      --accent-purple: #818cf8;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Starfield Canvas Background */
+    #space-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Subtle Background Radial Glow */
+    .glow-overlay {
+      position: fixed;
+      top: -10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1000px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, rgba(129, 140, 248, 0.03) 45%, transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Layout Container */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Navigation */
+    nav {
+      padding: 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 0%, var(--accent-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 9999px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      color: var(--accent-blue);
+      font-size: 0.825rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3.5rem;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    .hero p {
+      max-width: 650px;
+      margin: 0 auto 32px;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      color: #05070e;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(56, 189, 248, 0.25);
+    }
+
+    .btn-secondary {
+      background: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(12px);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--card-hover-border);
+      transform: translateY(-2px);
+    }
+
+    /* Quick Metrics Section */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 40px 0 80px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(12px);
+      padding: 24px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Section Styling */
+    section {
+      padding: 40px 0;
+    }
+
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.75rem;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--card-border);
+    }
+
+    /* Event & Activity Feed ("Personal LinkedIn") */
+    .feed-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .feed-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(12px);
+      border-radius: 12px;
+      padding: 24px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .feed-card:hover {
+      border-color: var(--card-hover-border);
+      transform: translateY(-2px);
+    }
+
+    .feed-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .feed-tag {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--accent-purple);
+      font-weight: 600;
+    }
+
+    .feed-date {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .feed-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .feed-body {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+
+    .feed-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      font-size: 0.8rem;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+    }
+
+    /* Grid for Projects */
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.25rem; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Animated Starfield Background -->
+  <canvas id="space-canvas"></canvas>
+  <div class="glow-overlay"></div>
+
+  <div class="container">
+    <nav>
+      <div class="logo">YOURNAME.DEV</div>
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#events">Activity Feed</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#skills">Skills</a></li>
+      </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero" id="about">
+      <span class="badge">🚀 Seeking Opportunities</span>
+      <h1>Architecting Digital Experiences from the Cosmos</h1>
+      <p>Full-Stack Developer & Tech Community Enthusiast. Dedicated to building performant web applications, participating in global hackathons, and continuously logging my technical journey.</p>
+      
+      <div class="btn-group">
+        <a href="#events" class="btn btn-primary">View Activity Feed</a>
+        <a href="#" class="btn btn-secondary">Download Resume</a>
+      </div>
+    </header>
+
+    <!-- Quick Stats for Recruiters -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">12+</div>
+        <div class="stat-label">Hackathons Attended</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">15+</div>
+        <div class="stat-label">Completed Projects</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">4</div>
+        <div class="stat-label">Open Source Contributions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">850+</div>
+        <div class="stat-label">LinkedIn Connections</div>
+      </div>
+    </div>
+
+    <!-- Personal Activity Feed (Personal LinkedIn) -->
+    <section id="events">
+      <h2 class="section-title">Event Log & Milestones</h2>
+      <div class="feed-container">
+
+        <!-- Feed Item 1 -->
+        <article class="feed-card">
+          <div class="feed-header">
+            <span class="feed-tag">Hackathon Win</span>
+            <span class="feed-date">August 2026</span>
+          </div>
+          <h3 class="feed-title">1st Runner Up @ PEC Hacks 2026</h3>
+          <p class="feed-body">
+            Built an AI-driven resource allocation platform for emergency response teams in under 36 hours. Managed frontend layout using Next.js and integrated real-time WebSocket communication for live dispatch mapping.
+          </p>
+          <div class="feed-pills">
+            <span class="pill">Next.js</span>
+            <span class="pill">WebSockets</span>
+            <span class="pill">Tailwind CSS</span>
+            <span class="pill">Team Lead</span>
+          </div>
+        </article>
+
+        <!-- Feed Item 2 -->
+        <article class="feed-card">
+          <div class="feed-header">
+            <span class="feed-tag">Workshop / Speaker</span>
+            <span class="feed-date">June 2026</span>
+          </div>
+          <h3 class="feed-title">Led "Mastering Async JS" Technical Workshop</h3>
+          <p class="feed-body">
+            Hosted a hands-on session for 120+ college developers, breaking down the Event Loop, Promises, and real-world API consumption patterns.
+          </p>
+          <div class="feed-pills">
+            <span class="pill">Public Speaking</span>
+            <span class="pill">JavaScript</span>
+            <span class="pill">Mentorship</span>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects">
+      <h2 class="section-title">Featured Projects</h2>
+      <div class="project-grid">
+
+        <article class="feed-card">
+          <div class="feed-header">
+            <span class="feed-tag">Full-Stack App</span>
+          </div>
+          <h3 class="feed-title">Nebula Analytics Dashboard</h3>
+          <p class="feed-body">
+            A high-concurrency monitoring tool for microservices with real-time metric visualization.
+          </p>
+          <div class="feed-pills">
+            <span class="pill">React</span>
+            <span class="pill">Node.js</span>
+            <span class="pill">PostgreSQL</span>
+          </div>
+        </article>
+
+        <article class="feed-card">
+          <div class="feed-header">
+            <span class="feed-tag">Developer Tool</span>
+          </div>
+          <h3 class="feed-title">Starbound CLI</h3>
+          <p class="feed-body">
+            Lightweight CLI utility to automate boilerplate code generation for cloud microservices.
+          </p>
+          <div class="feed-pills">
+            <span class="pill">Go</span>
+            <span class="pill">Docker</span>
+            <span class="pill">GitHub Actions</span>
+          </div>
+        </article>
+
+      </div>
+    </section>
+  </div>
+
+  <!-- Space Starfield Engine -->
+  <script>
+    const canvas = document.getElementById('space-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let width, height;
+    let stars = [];
+    let shootingStars = [];
+
+    function resizeCanvas() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Create Static & Drifting Stars
+    class Star {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.size = Math.random() * 1.5 + 0.5;
+        this.baseAlpha = Math.random() * 0.7 + 0.3;
+        this.alpha = this.baseAlpha;
+        this.twinkleSpeed = Math.random() * 0.02 + 0.005;
+        this.speedY = Math.random() * 0.05 + 0.02;
+      }
+
+      update() {
+        // Subtle vertical drifting
+        this.y -= this.speedY;
+        if (this.y < 0) this.y = height;
+
+        // Twinkle effect
+        this.alpha += Math.sin(Date.now() * this.twinkleSpeed) * 0.01;
+      }
+
+      draw() {
+        ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, Math.min(1, this.alpha))})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Create Shooting Stars
+    class ShootingStar {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * width + 200;
+        this.y = Math.random() * (height / 2);
+        this.length = Math.random() * 80 + 40;
+        this.speed = Math.random() * 10 + 6;
+        this.size = Math.random() * 1 + 0.5;
+        this.waitTime = Date.now() + Math.random() * 3000 + 2000; // Random delay
+        this.active = false;
+      }
+
+      update() {
+        if (!this.active) {
+          if (Date.now() > this.waitTime) {
+            this.active = true;
+          }
+          return;
+        }
+
+        this.x -= this.speed;
+        this.y += this.speed * 0.6;
+
+        if (this.x < -this.length || this.y > height + this.length) {
+          this.reset();
+        }
+      }
+
+      draw() {
+        if (!this.active) return;
+
+        const grad = ctx.createLinearGradient(
+          this.x, this.y, 
+          this.x + this.length, this.y - this.length * 0.6
+        );
+        grad.addColorStop(0, 'rgba(56, 189, 248, 1)');
+        grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = this.size;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x + this.length, this.y - this.length * 0.6);
+        ctx.stroke();
+      }
+    }
+
+    // Initialize Collections
+    for (let i = 0; i < 150; i++) stars.push(new Star());
+    for (let i = 0; i < 3; i++) shootingStars.push(new ShootingStar());
+
+    function render() {
+      ctx.clearRect(0, 0, width, height);
+
+      stars.forEach(star => {
+        star.update();
+        star.draw();
+      });
+
+      shootingStars.forEach(sStar => {
+        sStar.update();
+        sStar.draw();
+      });
+
+      requestAnimationFrame(render);
+    }
+
+    render();
+  </script>
+</body>
+</html>
